@@ -8,7 +8,7 @@ import logging
 from typing import Optional
 
 # Import configurations and prompts
-from config import GOOGLE_API_KEY, VISION_MODEL
+from config import GOOGLE_API_KEY, MULTIMODAL_MODEL
 from prompts import FORMULA_OCR_PROMPT, TABLE_TRANSCRIPTION_PROMPT, ILLUSTRATION_DESCRIPTION_PROMPT
 
 class AiProcessor:
@@ -21,8 +21,8 @@ class AiProcessor:
         """
         try:
             genai.configure(api_key=GOOGLE_API_KEY)
-            self.model = genai.GenerativeModel(VISION_MODEL)
-            logging.info(f"AI Processor initialized with model: {VISION_MODEL}")
+            self.model = genai.GenerativeModel(MULTIMODAL_MODEL)
+            logging.info(f"AI Processor initialized with model: {MULTIMODAL_MODEL}")
         except Exception as e:
             logging.error(f"Failed to initialize Google Generative AI. Check API key. Error: {e}", exc_info=True)
             raise

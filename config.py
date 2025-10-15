@@ -9,7 +9,8 @@ load_dotenv()
 # --- Security Sensitive Configuration ---
 # API Keys and Secrets are loaded from environment variables.
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-COHERE_API_KEY = os.getenv("COHERE_API_KEY")
+# COHERE_API_KEY is no longer needed as we are switching to a local reranker model.
+# COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 
 # --- API Endpoint Configuration ---
 API_CONFIG = {
@@ -25,7 +26,7 @@ API_CONFIG = {
 HEADERS = {
     "accesstoken": os.getenv("ACCESS_TOKEN"),
     "cookie": os.getenv("COOKIE"),
-    "token": "46a2f7762f9612349f0d8885a987e5a2", # Added the missing token field
+    "token": "46a2f7762f9612349f0d8885a987e5a2",
     "Content-Type": "application/json",
     "Cache-Control": "no-cache",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
@@ -52,11 +53,12 @@ CHROMA_DB_CONFIG = {
     "collection_name": "structural_design_specs"
 }
 
-# --- Model Configuration ---
+# --- Model Configuration (Updated by user) ---
 EMBEDDING_MODEL = "text-embedding-004"
-GENERATION_MODEL = "gemini-pro"
-VISION_MODEL = "gemini-pro-vision"
-RERANK_MODEL = "rerank-english-v2.0"
+# Using a single powerful multimodal model for both vision and text generation tasks.
+MULTIMODAL_MODEL = "gemini-1.5-pro-latest"
+# Switched from Cohere API to a local, open-source reranker model.
+RERANK_MODEL = "BAAI/bge-reranker-large"
 
 # --- Chunking Configuration ---
 CHUNK_CONFIG = {
