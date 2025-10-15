@@ -3,10 +3,10 @@
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any, Literal, Union
 
-# Define a type for the image roles based on the SRS
+# 根据SRS定义图片角色的类型
 ImageType = Literal['formula', 'table', 'illustration', 'unknown']
 
-# Define precise types for the structured content blocks that the parser will return
+# 为解析器将返回的结构化内容块定义精确的类型
 TextBlock = Dict[Literal["type", "content"], Union[Literal["text"], str]]
 ImageBlock = Dict[
     Literal["type", "image_type", "src", "title", "original_tag"],
@@ -17,23 +17,22 @@ ContentBlock = Union[TextBlock, ImageBlock]
 
 class HtmlParser:
     """
-    Parses HTML content from the specification API into a structured sequence of text and image blocks.
-    This class is designed to handle the specific HTML structure found in the API responses.
+    将来自规范API的HTML内容解析成由文本和图片块组成的结构化序列。
+    该类专门设计用于处理API响应中发现的特定HTML结构。
     """
     def __init__(self, html_content: str):
         """
-        Initializes the parser with the HTML content.
+        使用HTML内容初始化解析器。
 
         Args:
-            html_content (str): The raw HTML string to be parsed.
+            html_content (str): 待解析的原始HTML字符串。
         """
-        # We wrap the content in a single root element to simplify top-level iteration
+        # 我们将内容包裹在一个单一的根元素中，以简化顶层迭代
         self.soup = BeautifulSoup(f"<body>{html_content}</body>", 'html.parser')
 
     def _get_image_type(self, img_tag: BeautifulSoup) -> ImageType:
         """
-        Determines the type of an image ('formula', 'table', 'illustration')
-        based on its 'class' attribute as specified in the SRS.
+        根据SRS中的规定，基于<img>标签的'class'属性来确定其类型（'formula', 'table', 'illustration'）。
         """
         classes = img_tag.get('class', [])
         if 'role-1' in classes or 'role-3' in classes:
@@ -46,21 +45,21 @@ class HtmlParser:
 
     def _get_chart_title_for_tag(self, tag: BeautifulSoup) -> str | None:
         """
-        Finds a chart title associated with a given tag (e.g., an <img> tag).
-        The SRS specifies that the title is in an adjacent element with class '.chart-title'.
+        查找与给定标签（例如<img>标签）关联的图表标题。
+        SRS规定标题位于class为'.chart-title'的相邻元素中。
         """
-        # A common HTML pattern is that the image is wrapped in a container (e.g., <div>),
-        # and the title is a sibling of that container.
+        # 一种常见的HTML模式是，图片被包裹在一个容器（如<div>）中，
+        # 而标题是该容器的兄弟节点。
         container = tag.find_parent()
         if not container:
             return None
 
-        # Check the immediate previous sibling for a title element
+        # 检查紧邻的前一个兄弟节点是否为标题元素
         prev_sibling = container.find_previous_sibling()
         if prev_sibling and 'chart-title' in prev_sibling.get('class', []):
             return prev_sibling.get_text(strip=True)
 
-        # Check the immediate next sibling for a title element
+        # 检查紧邻的后一个兄弟节点是否为标题元素
         next_sibling = container.find_next_sibling()
         if next_sibling and 'chart-title' in next_sibling.get('class', []):
             return next_sibling.get_text(strip=True)
@@ -69,23 +68,23 @@ class HtmlParser:
 
     def get_structured_content(self) -> List[ContentBlock]:
         """
-        Decomposes the HTML into a sequential list of text and image blocks.
-        This is the main public method of the parser.
+        将HTML分解成一个由文本块和图片块组成的顺序列表。
+        这是解析器的主要公共方法。
         """
         content_blocks: List[ContentBlock] = []
 
-        # Process all top-level elements within the body tag we added
+        # 处理我们添加的body标签内的所有顶级元素
         for element in self.soup.body.children:
-            # Skip over non-tag elements like NavigableString at the top level
+            # 跳过顶层的非标签元素，如NavigableString
             if not hasattr(element, 'get'):
                 continue
 
-            # Explicitly skip chart-title elements as their content is handled
-            # by the _get_chart_title_for_tag method when processing an image.
+            # 显式跳过chart-title元素，因为它们的内容在处理图片时
+            # 由_get_chart_title_for_tag方法处理。
             if 'chart-title' in element.get('class', []):
                 continue
 
-            # Find all images within this top-level element
+            # 查找此顶级元素内的所有图片
             images = element.find_all('img')
             if images:
                 for img in images:
@@ -100,7 +99,7 @@ class HtmlParser:
                         "title": title,
                         "original_tag": str(img)
                     })
-            # If no images, treat it as a text block
+            # 如果没有图片，则将其视为一个文本块
             else:
                 text = element.get_text(separator=' ', strip=True)
                 if text:
@@ -110,7 +109,7 @@ class HtmlParser:
 
     @staticmethod
     def _merge_consecutive_text_blocks(blocks: List[ContentBlock]) -> List[ContentBlock]:
-        """A utility to merge adjacent text blocks for cleaner output."""
+        """一个用于合并相邻文本块的工具方法，以获得更清晰的输出。"""
         if not blocks:
             return []
 
@@ -132,10 +131,10 @@ class HtmlParser:
         return merged_blocks
 
 if __name__ == '__main__':
-    # This block provides a runnable test case to verify the parser's functionality.
-    print("Running basic tests for HtmlParser...")
+    # 这个代码块提供了一个可运行的测试用例，以验证解析器的功能。
+    print("正在运行HtmlParser的基本测试...")
 
-    # A sample HTML structure that mimics the data described in the SRS.
+    # 一个模拟SRS中描述的数据的示例HTML结构。
     sample_html = """
     <p>这是一些条文规定文本。下面是一个公式。</p>
     <div class="figure-wrapper">
@@ -158,11 +157,11 @@ if __name__ == '__main__':
     structured_content = parser.get_structured_content()
 
     import json
-    print("\n--- Extracted Structured Content ---")
+    print("\n--- 提取的结构化内容 ---")
     print(json.dumps(structured_content, indent=2, ensure_ascii=False))
-    print("--- Test Complete ---")
+    print("--- 测试完成 ---")
 
-    # Verification checks - The expected output is a sequence of 7 alternating blocks.
+    # 验证性检查 - 预期的输出是一个包含7个交错块的序列。
     assert len(structured_content) == 7
     assert structured_content[0]['type'] == 'text' and '公式' in structured_content[0]['content']
     assert structured_content[1]['type'] == 'image' and structured_content[1]['image_type'] == 'formula'
@@ -173,4 +172,4 @@ if __name__ == '__main__':
     assert structured_content[5]['type'] == 'image' and structured_content[5]['image_type'] == 'illustration'
     assert structured_content[5]['title'] == '图 5.2.1 框架结构示意图'
     assert structured_content[6]['type'] == 'text' and '结尾' in structured_content[6]['content']
-    print("\nAssertions passed successfully.")
+    print("\n断言成功通过。")
