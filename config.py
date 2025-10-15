@@ -8,9 +8,6 @@ load_dotenv()
 
 # --- Security Sensitive Configuration ---
 # API Keys and Secrets are loaded from environment variables.
-# Please create a .env file in the root directory and add your keys there.
-# See .env.example for the required format.
-
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 
@@ -24,12 +21,17 @@ API_CONFIG = {
 }
 
 # --- Request Headers Configuration ---
-# Sensitive parts of the headers are loaded from environment variables.
+# This dictionary now includes the separate 'token' header as identified by the user.
 HEADERS = {
     "accesstoken": os.getenv("ACCESS_TOKEN"),
     "cookie": os.getenv("COOKIE"),
+    "token": "46a2f7762f9612349f0d8885a987e5a2", # Added the missing token field
     "Content-Type": "application/json",
-    "Cache-Control": "no-cache"
+    "Cache-Control": "no-cache",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
+    "Referer": "https://www.kscecs.com/reader-standard-3739",
+    "Origin": "https://www.kscecs.com",
+    "Plat": "2"
 }
 
 # --- Specification Standards Configuration ---
@@ -54,7 +56,7 @@ CHROMA_DB_CONFIG = {
 EMBEDDING_MODEL = "text-embedding-004"
 GENERATION_MODEL = "gemini-pro"
 VISION_MODEL = "gemini-pro-vision"
-RERANK_MODEL = "rerank-english-v2.0" # Note: Please verify the correct model name for Cohere's reranker.
+RERANK_MODEL = "rerank-english-v2.0"
 
 # --- Chunking Configuration ---
 CHUNK_CONFIG = {
@@ -69,7 +71,6 @@ LOGGING_CONFIG = {
 }
 
 # --- Sanity Check ---
-# A simple check to ensure that critical environment variables are loaded.
-if not all([GOOGLE_API_KEY, COHERE_API_KEY, HEADERS["accesstoken"], HEADERS["cookie"]]):
-    print("CRITICAL WARNING: Not all required environment variables (API Keys, Access Token, Cookie) are set.")
+if not all([HEADERS["accesstoken"], HEADERS["cookie"]]):
+    print("CRITICAL WARNING: Not all required environment variables (Access Token, Cookie) are set.")
     print("Please check your .env file or environment settings.")
