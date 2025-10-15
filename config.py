@@ -74,6 +74,11 @@ LOGGING_CONFIG = {
     "file": "app.log"
 }
 
+# --- 数据处理配置 ---
+PROCESSING_CONFIG = {
+    "output_dir": "./processed_data" # 指定处理结果的输出目录
+}
+
 # --- 完整性检查 ---
 # 一个简单的检查，确保关键的环境变量已被加载。
 if not all([HEADERS["accesstoken"], HEADERS["cookie"]]):
