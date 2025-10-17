@@ -41,7 +41,7 @@ def calculate_pythagoras():
         c = sqrt(pow(a, 2) + pow(b, 2))
 
         # 准备结果消息
-        result_message = f"Result: c = {round(c, 4)}"
+        result_message = "Result: c = " + str(round(c, 4))
 
     except (ValueError, TypeError):
         # 处理无效输入，例如空字符串或非数字字符

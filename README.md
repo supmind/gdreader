@@ -56,7 +56,7 @@ def calculate_pythagoras():
         a = float(input_a.text)
         b = float(input_b.text)
         c = sqrt(pow(a, 2) + pow(b, 2))
-        result_message = f"Result: c = {round(c, 4)}"
+        result_message = "Result: c = " + str(round(c, 4))
     except (ValueError, TypeError):
         result_message = "Error: Invalid input."
 

@@ -13,14 +13,14 @@ except ImportError:
     class MockTiDraw:
         def __getattr__(self, name):
             def mock_func(*args, **kwargs):
-                print(f"调用模拟函数: ti_draw.{name}({args}, {kwargs})")
+                print("调用模拟函数: ti_draw.{} a:{} kw:{}".format(name, args, kwargs))
             return mock_func
 
     # 创建一个模拟的 ti_system 模块
     class MockTiSystem:
         def __getattr__(self, name):
             def mock_func(*args, **kwargs):
-                print(f"调用模拟函数: ti_system.{name}({args}, {kwargs})")
+                print("调用模拟函数: ti_system.{} a:{} kw:{}".format(name, args, kwargs))
                 if name == 'get_key':
                     return "" # 模拟无按键输入
             return mock_func
