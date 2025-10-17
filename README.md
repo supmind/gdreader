@@ -1,111 +1,92 @@
+# TI-Nspire CX II Python GUI 库
 
-## **专业级结构设计规范查询RAG系统 - 软件需求文档 (SRS)**
+这是一个为 TI-Nspire CX II 系列图形计算器设计的简单图形用户界面（GUI）库。它使用 Python 语言编写，并基于计算器内置的 `ti_draw` 和 `ti_system` 模块。
 
-**文档版本：** 2.0 (API & Vision Enhanced)
-**发布日期：** 2025年10月15日
-**作者：** [你的名字/团队]
-**审批人：** [项目负责人]
+## 功能
 
----
+本 GUI 库旨在提供一个面向对象的框架，用于轻松创建交互式应用程序。目前支持以下控件：
 
-### **1. 概述**
+*   **Label**: 用于显示静态文本。
+*   **Button**: 可点击的按钮，支持回调函数。
+*   **TextInput**: 单行文本输入框。
+*   **Listbox**: 可滚动的项目列表。
+*   **Window**: 可包含其他控件的容器窗口。
+*   **MessageBox**: 用于显示信息、警告或错误的模态弹窗。
 
-#### **1.1 项目目标与范围**
-本项目旨在开发一个基于检索增强生成（RAG）技术的智能问答系统，以下简称“规范助手”。该系统将作为结构工程师的专业辅助工具，使其能够通过自然语言查询，快速、准确、全面地从《混凝土结构设计规范》（GB 50010-2010等）和《钢结构设计规范》（GB 50017-2017等）官方标准中获取信息，包括文本、公式、表格数据和插图解释。
+## 文件结构
 
-项目范围包括：
-*   从指定的API接口获取并处理规范的结构化JSON数据。
-*   对原始数据进行深度清洗、增强和标准化，特别是对公式、表格和插图进行差分处理。
-*   构建和维护一个包含丰富语义信息的高质量知识库。
-*   实现一个端到端的、包含高级检索策略的RAG查询处理流程。
-*   提供一个基础的用户交互界面用于演示和测试。
+*   `tins_gui.py`: GUI 库的核心文件，包含了所有控件和应用程序的类。您可以在自己的项目中导入此文件来使用这些控件。
+*   `main.py`: 一个完整的示例应用程序（公式计算器），展示了如何使用 `tins_gui.py` 中的各种控件来构建一个实际的应用。
 
-本项目**不包括**：
-*   构建商业级的、面向公众的用户界面。
-*   除混凝土和钢结构之外的其他设计规范。
-*   对规范内容进行解释、推断或提供超出原文的设计建议。
+## 如何使用
 
-#### **1.2 目标用户**
-本系统的目标用户为具有专业背景的结构工程师、建筑设计师、工程审图人员以及相关领域的学生和研究人员。用户熟悉专业术语，对答案的准确性、全面性和可追溯性有极高要求。
+1.  将 `tins_gui.py` 文件与您的主程序文件（例如 `my_app.py`）放在同一个文件夹中。
+2.  在您的主程序中，从 `tins_gui` 导入所需的类。
+3.  实例化 `App` 类，然后创建并添加您需要的控件。
+4.  调用 `app.run()` 来启动事件循环。
 
-#### **1.3 关键术语定义**
-*   **RAG (Retrieval-Augmented Generation):** 检索增强生成。
-*   **VLM (Vision-Language Model):** 多模态大模型，此处特指Gemini Pro Vision。
-*   **知识库 (Knowledge Base):** 存储在向量数据库中的、经过深度处理的规范数据集合。
-*   **原子块 (Atomic Chunk):** 代表一个逻辑上独立的知识单元，如一条条款规定、一条条文说明、或一条从长说明中分割出的语义子块。
-*   **元数据 (Metadata):** 描述数据块来源和属性的信息。
-*   **LaTeX:** 一种高质量的排版系统，常用于表示数学公式。
+## 示例代码
 
----
+以下是一个简单的示例，演示了如何创建一个带有标签、输入框和按钮的应用程序。完整代码请参见 `main.py`。
 
-### **2. 系统描述**
+```python
+# main.py
+# 示例应用：公式计算器
+# 使用 tins_gui 库来计算勾股定理 (a^2 + b^2 = c^2)。
 
-#### **2.1 系统功能概述**
-“规范助手”是一个后端服务系统，它将接收用户的自然语言查询，经过内部的RAG处理流程后，返回一个基于规范原文的、带有明确引用的文本答案。系统能够理解并回答涉及文本规定、计算公式、表格数据乃至示意图构造的各类问题。
+from tins_gui import *
 
-#### **2.2 技术架构**
-| 组件类别 | 选定工具 | 备注 |
-| :--- | :--- | :--- |
-| **数据源** | **专用API接口** | `searchTocInfo`, `searchStdReadDetail` |
-| **核心编排框架** | **LangChain** | 管理整个RAG流程 |
-| **HTML解析** | **BeautifulSoup4** | 用于解析API返回的HTML内容 |
-| **多模态AI引擎** | **Google Gemini Pro Vision** | 用于公式OCR、表格转录、插图描述 |
-| **文本AI引擎** | **Google Gemini Pro** | 用于查询重写、答案生成、全局校验 |
-| **嵌入式向量数据库** | **ChromaDB** | 无需客户端，支持元数据过滤 |
-| **嵌入模型** | **Google `text-embedding-004`** | 生成文本嵌入 |
-| **检索精度增强** | **Cohere Rerank API** | 对检索结果进行重排序 |
+# 尝试导入数学模块
+try:
+    from math import sqrt, pow
+except ImportError:
+    from math import sqrt, pow
 
-#### **2.3 部署环境**
-系统应设计为可在标准的Python环境中运行，最小化外部服务依赖。知识库（ChromaDB）将作为本地文件持久化存储。
+# --- 全局变量和回调函数 ---
+app = App()
+input_a = None
+input_b = None
 
----
+def calculate_pythagoras():
+    """
+    当 "Calculate c" 按钮被按下时调用的回调函数。
+    """
+    global input_a, input_b, app
+    try:
+        a = float(input_a.text)
+        b = float(input_b.text)
+        c = sqrt(pow(a, 2) + pow(b, 2))
+        result_message = f"Result: c = {round(c, 4)}"
+    except (ValueError, TypeError):
+        result_message = "Error: Invalid input."
 
-### **3. 功能性需求 (Functional Requirements)**
+    # 创建并显示结果消息框
+    msg_box = MessageBox("Calculation Result", result_message)
+    msg_box.run_modal(app)
 
-#### **3.1 FR-1: 数据采集与增强模块**
-*   **FR-1.1 (数据抓取):** 系统必须能通过调用`searchTocInfo`和`searchStdReadDetail` API，自动化地、完整地抓取指定规范的所有章节和条款数据。
-*   **FR-1.2 (内容分离):** 系统必须能够解析返回的JSON，清晰地区分**条文规定 (`content`)** 和**条文说明 (`clause`)**。
-*   **FR-1.3 (精细化内容清洗与增强):** 系统必须对`content`和`clause`字段中的HTML内容，根据其内在结构和`class`属性，进行精细化的清洗和信息增强。
-    *   **FR-1.3.1 (HTML结构解析与文本提取):** 使用BeautifulSoup4解析HTML，剥离常规格式化标签，并将HTML实体（如`&le;`）转换为Unicode字符。
-    *   **FR-1.3.2 (图片差分处理):** 系统必须遍历所有`<img>`标签，并根据其`class`属性执行不同的、基于Gemini Pro Vision的处理策略：
-        *   **A. 公式图片 (`class="role-1"` 或 `class="role-3"`):**
-            *   **动作:** 调用Gemini Pro Vision进行数学公式OCR。
-            *   **输出:** 严格转换为**LaTeX**格式，并用`$$...$$`包裹。
-            *   **替换:** 用生成的LaTeX字符串替换`<img>`标签。
-        *   **B. 表格图片 (`class="role-2"`):**
-            *   **动作:** 调用Gemini Pro Vision进行表格识别与转录。
-            *   **输出:** 转换为**Markdown**格式的表格字符串。
-            *   **替换:** 用生成的Markdown表格字符串替换`<img>`标签。
-        *   **C. 示意图/插图 (`class="role-0"`):**
-            *   **动作:** 调用Gemini Pro Vision，使用预设的“专家人设”Prompt模板，为图片生成一段高质量、结构化的文本描述。
-            *   **上下文关联:** 调用前必须从HTML中提取相邻的图表标题（`.chart-title`），并将其注入Prompt中。
-            *   **输出:** 一段详细的、以`[示意图描述：...]`为前缀的文本。
-            *   **替换:** 用生成的描述文本替换`<img>`标签。
-    *   **FR-1.3.3 (失败处理):** 任何图片处理失败，都必须在文本中插入明确的占位符（如 `[图片处理失败: <图片URL>]`）并记录日志。
-*   **FR-1.4 (原子块创建与分块):**
-    *   **FR-1.4.1:** 将每一条独立的、经过深度清洗和增强后的条款规定和条文说明，创建为一个“原子块”。
-    *   **FR-1.4.2:** 为每个块附加详尽的元数据，包括`source_doc`, `standard_name`, `chapter_id`, `type`等。
-    *   **FR-1.4.3:** 对于长度超过512个tokens的“说明块”，系统必须能调用`LangChain`的`SemanticChunker`进行二次分割，子块需继承并扩展元数据。
-*   **FR-1.5 (全局校验 - 可选进阶):** 提供一个脚本，可随机抽样或指定部分已处理的文本块，提交给Gemini Pro进行最终的内容连贯性、符号统一性和公式语法检查。
+# --- UI 布局 ---
+title_label = Label(10, 5, "Pythagorean Theorem (a^2+b^2=c^2)")
+label_a = Label(10, 40, "Value for a:")
+input_a = TextInput(110, 38, 120, "3")
 
-#### **3.2 FR-2: 知识库索引模块**
-*   **FR-2.1 (嵌入):** 系统必须使用Google `text-embedding-004`模型，将所有最终生成的文本块（包含文字、LaTeX公式、Markdown表格和插图描述）转换为向量嵌入。
-*   **FR-2.2 (索引):** 系统必须能够将文本块、向量嵌入及其完整的元数据一同存储到ChromaDB数据库中。
-*   **FR-2.3 (持久化):** ChromaDB数据库必须能持久化存储到本地文件系统。
+label_b = Label(10, 70, "Value for b:")
+input_b = TextInput(110, 68, 120, "4")
 
-#### **3.3 FR-3: RAG查询处理链**
-*   **FR-3.1 (查询预处理):** 系统在接收到用户查询后，必须先使用Gemini Pro模型对查询进行重写。
-*   **FR-3.2 (检索):** 系统必须能够在ChromaDB中执行向量相似度搜索，并支持基于元数据的过滤操作。
-*   **FR-3.3 (重排序):** 系统必须将初步检索到的结果（Top 20）发送给Cohere Rerank API进行二次排序。
-*   **FR-3.4 (生成):** 系统必须将重排序后的最优结果（Top 3-5）作为上下文，连同一个包含严格角色扮演、内容约束和引用指令的提示词，一同提交给Gemini Pro模型。
-*   **FR-3.5 (答案输出):** 系统生成的最终答案必须是文本格式，并且在答案末尾清晰地、以统一格式列出所有引用的规范条款来源。
+calc_button = Button(110, 110, 120, 25, "Calculate c", on_click=calculate_pythagoras)
 
----
+# --- 将控件添加到应用中 ---
+app.add_widget(title_label)
+app.add_widget(label_a)
+app.add_widget(input_a, is_focusable=True)
+app.add_widget(label_b)
+app.add_widget(input_b, is_focusable=True)
+app.add_widget(calc_button, is_focusable=True)
 
-### **4. 非功能性需求 (Non-Functional Requirements)**
+# --- 运行应用 ---
+if __name__ == "__main__":
+    app.run()
+```
 
-*   **NFR-1 (性能):** 对于单次用户查询，系统应在10秒内返回完整答案（网络延迟除外）。
-*   **NFR-2 (准确性):** 系统生成的所有答案必须严格基于提供的上下文。不允许出现任何形式的幻觉或捏造。
-*   **NFR-3 (可靠性):** API请求、模型调用等外部交互必须包含重试和异常处理逻辑。所有关键步骤都应有日志记录。
-*   **NFR-4 (可维护性):** 代码必须遵循模块化设计，数据处理、检索、生成等环节应清晰解耦。所有Prompt模板应集中管理，便于迭代。
-*   **NFR-5 (易用性):** 系统应提供一个简单的Streamlit或Gradio应用，用于内部进行直观的功能演示和测试。
+## 贡献
+
+欢迎通过提交 issue 或 pull request 来改进这个库。
